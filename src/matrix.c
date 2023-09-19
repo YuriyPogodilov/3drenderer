@@ -84,6 +84,39 @@ mat4_t mat4_make_rotation_z(float angle) {
 	return m;
 }
 
+mat4_t mat4_make_perspective(float fov, float aspect, float znear, float zfar)
+{
+	// | (h/w)*(1/tan(fov/2))              0            0                  0 |
+	// |                    0   1/tan(fov/2)            0                  0 |
+	// |                    0              0   zf/(zf-zn)                  0 |
+	// |                    0              0            1   (-zf*zn)/(zf-zn) |
+
+	mat4_t m = {{{ 0 }}};
+
+	m.m[0][0] = aspect * (1 / tan(fov / 2));
+	m.m[1][1] = 1 / tan(fov / 2);
+	m.m[2][2] = zfar / (zfar - znear);
+	m.m[3][3] = (-zfar * znear) / (zfar - znear);
+	m.m[3][2] = 1.0;
+
+	return m;
+}
+
+vec4_t mat4_mul_vec4_project(mat4_t m, vec4_t v)
+{
+	// multiply the projection matrix by our original vector
+	vec4_t result = mat4_mul_vec4(m, v);
+
+	// perform perspective divide with the original z-value that is now stored in w
+	if (result.w != 0.0) {
+		result.x /= result.w;
+		result.y /= result.w;
+		result.z /= result.w;
+	}
+
+	return result;
+}
+
 
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v)
 {
