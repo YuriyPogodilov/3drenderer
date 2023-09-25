@@ -17,7 +17,9 @@ enum render_method {
 	RENDER_WIRE,
 	RENDER_WIRE_VERTEX,
 	RENDER_FILL_TRIANGLE,
-	RENDER_FILL_TRIANGLE_WIRE
+	RENDER_FILL_TRIANGLE_WIRE,
+	RENDER_TEXTURED,
+	RENDER_TEXTURED_WIRE
 } render_method;
 
 extern SDL_Window* window;
@@ -37,7 +39,6 @@ void clear_color_buffer(uint32_t color);
 void draw_grid(void);
 void draw_pixel(int x, int y, uint32_t color);
 void draw_line(int x0, int y0, int x1, int y1, uint32_t color);
-void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 void draw_rect(int x, int y, int w, int h, uint32_t color);
 
 
