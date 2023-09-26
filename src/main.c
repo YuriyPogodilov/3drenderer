@@ -47,11 +47,12 @@ void setup(void) {
 	proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
 	// Load the vertex and face values for the mesh data structure
-	load_cube_mesh_data();
+	//load_cube_mesh_data();
+	load_obj_file_data("./assets/crab.obj");
 	//load_obj_file_data("./assets/f22.obj");
 
 	// Load the texture information from an external PNG file
-	load_png_texture_data("./assets/cube.png");
+	load_png_texture_data("./assets/crab.png");
 }
 
 void process_input(void) {
@@ -110,9 +111,9 @@ void update(void) {
 
 	triangles_to_render = NULL;
 
-	mesh.rotation.x += 0.01;
+	//mesh.rotation.x += -0.01;
 	mesh.rotation.y += 0.01;
-	mesh.rotation.z += 0.01;
+	//mesh.rotation.z += 0.01;
 	//mesh.scale.x += 0.002;
 	//mesh.scale.y += 0.001;
 	//mesh.translation.x += 0.01;
@@ -129,9 +130,9 @@ void update(void) {
 	for (int i = 0; i < num_faces; i++) {
 		face_t mesh_face = mesh.faces[i];
 		vec3_t face_vertices[3] = {
-			mesh.vertices[mesh_face.a - 1],
-			mesh.vertices[mesh_face.b - 1],
-			mesh.vertices[mesh_face.c - 1],
+			mesh.vertices[mesh_face.a],
+			mesh.vertices[mesh_face.b],
+			mesh.vertices[mesh_face.c],
 		};
 
 		vec4_t transformed_vertices[3];

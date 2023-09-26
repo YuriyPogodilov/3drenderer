@@ -68,13 +68,27 @@ void load_obj_file_data(const char* filename) {
 		return;
 	}
 
+	tex2_t* tex_coords = NULL;
+
 	while (fgets(line, STRING_MAX_LENGTH, file)) {
+		// Vertex information
 		if (strncmp(line, "v ", 2) == 0) {
 			vec3_t vertex;
 			sscanf_s(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
 			array_push(mesh.vertices, vertex);
 		}
-		else if (strncmp(line, "f ", 2) == 0) {
+
+		// Texture coordinate information
+		if (strncmp(line, "vt ", 3) == 0) {
+			tex2_t tex_coord;
+			sscanf_s(line, "vt %f %f", &tex_coord.u, &tex_coord.v);
+			// Flip the V component to account for inverted UV-coordinates (V grows downwards)
+			tex_coord.v = 1 - tex_coord.v;
+			array_push(tex_coords, tex_coord);
+		}
+
+		// Face information
+		if (strncmp(line, "f ", 2) == 0) {
 			int vertex_indices[3];
 			int texture_indices[3];
 			int normal_indices[3];
@@ -85,15 +99,17 @@ void load_obj_file_data(const char* filename) {
 				&vertex_indices[2], &texture_indices[2], &normal_indices[2]
 			);
 			face_t face = {
-				.a = vertex_indices[0],
-				.b = vertex_indices[1],
-				.c = vertex_indices[2],
+				.a = vertex_indices[0] - 1,
+				.b = vertex_indices[1] - 1,
+				.c = vertex_indices[2] - 1,
+				.a_uv = tex_coords[texture_indices[0] - 1],
+				.b_uv = tex_coords[texture_indices[1] - 1],
+				.c_uv = tex_coords[texture_indices[2] - 1],
 				.color = 0xFFFFFFFF
 			};
 			array_push(mesh.faces, face);
 		}
 	}
 
-	int k = 0;
-	k++;
+	array_free(tex_coords);
 }
