@@ -58,7 +58,7 @@ void load_cube_mesh_data(void) {
 
 #define STRING_MAX_LENGTH 512
 
-void load_obj_file_data(char* filename) {
+void load_obj_file_data(const char* filename) {
 	char line[STRING_MAX_LENGTH];
 	char* token = NULL;
 	char space_delim[2] = " ";
