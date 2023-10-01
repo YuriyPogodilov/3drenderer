@@ -9,7 +9,9 @@
 #include "matrix.h"
 #include "light.h"
 
-triangle_t* triangles_to_render = NULL;
+#define MAX_TRIANGLES_TO_RENDER 10000
+triangle_t triangles_to_render[MAX_TRIANGLES_TO_RENDER];
+int num_triangles_to_render = 0;
 
 vec3_t camera_pos = { .x = 0, .y = 0, .z = 0 };
 mat4_t proj_matrix;
@@ -49,11 +51,11 @@ void setup(void) {
 
 	// Load the vertex and face values for the mesh data structure
 	//load_cube_mesh_data();
-	load_obj_file_data("./assets/f117.obj");
+	load_obj_file_data("./assets/drone.obj");
 	//load_obj_file_data("./assets/f22.obj");
 
 	// Load the texture information from an external PNG file
-	load_png_texture_data("./assets/f117.png");
+	load_png_texture_data("./assets/drone.png");
 }
 
 void process_input(void) {
@@ -110,10 +112,10 @@ void update(void) {
 
 	previous_frame_time = SDL_GetTicks();
 
-	triangles_to_render = NULL;
+	num_triangles_to_render = 0;
 
-	mesh.rotation.x += -0.01;
-	//mesh.rotation.y += 0.01;
+	//mesh.rotation.x += 0.01;
+	mesh.rotation.y += 0.01;
 	//mesh.rotation.z += 0.01;
 	//mesh.scale.x += 0.002;
 	//mesh.scale.y += 0.001;
@@ -224,15 +226,16 @@ void update(void) {
 			.color = face_color_lighted
 		};
 
-		array_push(triangles_to_render, projected_triangle);
+		if (num_triangles_to_render < MAX_TRIANGLES_TO_RENDER) {
+			triangles_to_render[num_triangles_to_render++] = projected_triangle;
+		}
 	}
 }
 
 void render(void) {
 	//draw_grid();
 
-	int num_triangles = array_length(triangles_to_render);
-	for (int i = 0; i < num_triangles; i++) {
+	for (int i = 0; i < num_triangles_to_render; i++) {
 		triangle_t triangle = triangles_to_render[i];
 
 		if (render_method == RENDER_FILL_TRIANGLE|| render_method == RENDER_FILL_TRIANGLE_WIRE) {
@@ -276,8 +279,6 @@ void render(void) {
 			draw_rect(triangle.points[2].x - 2, triangle.points[2].y - 2, 4, 4, 0xFFFF0000); // vertex C
 		}
 	}
-
-	array_free(triangles_to_render);
 
 	render_color_buffer();
 	clear_color_buffer(0xFF000000);
