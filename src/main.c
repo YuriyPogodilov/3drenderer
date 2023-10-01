@@ -23,6 +23,7 @@ void setup(void) {
 
 	// Allocate the required memory in bytes to hold the color buffer
 	color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * window_width * window_height);
+	z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
 
 	if (!color_buffer) {
 		fprintf(stderr, "Error allocating color buffer\n");
@@ -48,11 +49,11 @@ void setup(void) {
 
 	// Load the vertex and face values for the mesh data structure
 	//load_cube_mesh_data();
-	load_obj_file_data("./assets/crab.obj");
+	load_obj_file_data("./assets/f117.obj");
 	//load_obj_file_data("./assets/f22.obj");
 
 	// Load the texture information from an external PNG file
-	load_png_texture_data("./assets/crab.png");
+	load_png_texture_data("./assets/f117.png");
 }
 
 void process_input(void) {
@@ -111,8 +112,8 @@ void update(void) {
 
 	triangles_to_render = NULL;
 
-	//mesh.rotation.x += -0.01;
-	mesh.rotation.y += 0.01;
+	mesh.rotation.x += -0.01;
+	//mesh.rotation.y += 0.01;
 	//mesh.rotation.z += 0.01;
 	//mesh.scale.x += 0.002;
 	//mesh.scale.y += 0.001;
@@ -204,9 +205,6 @@ void update(void) {
 			projected_points[j].y += (window_height / 2.0);
 		}
 
-		// Calculate the average depth for each face based on the vertices after transformation
-		float avg_depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
-
 		// Calculate light shading for the face
 		float light_intensity = -vec3_dot(normal, global_light.direction);
 
@@ -223,29 +221,10 @@ void update(void) {
 				{ mesh_face.b_uv.u, mesh_face.b_uv.v },
 				{ mesh_face.c_uv.u, mesh_face.c_uv.v }
 			},
-			.color = face_color_lighted,
-			.avg_depth = avg_depth
+			.color = face_color_lighted
 		};
 
 		array_push(triangles_to_render, projected_triangle);
-	}
-
-	// Sort the triangles to render by their average depth
-	int length = array_length(triangles_to_render);
-	bool wasSwapped;
-	for (int i = 0; i < length - 1; i++) {
-		wasSwapped = false;
-		for (int j = 0; j < length - i - 1; j++) {
-			if (triangles_to_render[j].avg_depth < triangles_to_render[j + 1].avg_depth) {
-				triangle_t temp = triangles_to_render[j];
-				triangles_to_render[j] = triangles_to_render[j + 1];
-				triangles_to_render[j + 1] = temp;
-				wasSwapped = true;
-			}
-		}
-		if (!wasSwapped) {
-			break;
-		}
 	}
 }
 
@@ -259,9 +238,9 @@ void render(void) {
 		if (render_method == RENDER_FILL_TRIANGLE|| render_method == RENDER_FILL_TRIANGLE_WIRE) {
 			// Draw filled triangle
 			draw_filled_triangle(
-				triangle.points[0].x, triangle.points[0].y,
-				triangle.points[1].x, triangle.points[1].y,
-				triangle.points[2].x, triangle.points[2].y,
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w,
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w,
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w,
 				triangle.color
 			);
 		}
@@ -302,12 +281,14 @@ void render(void) {
 
 	render_color_buffer();
 	clear_color_buffer(0xFF000000);
+	clear_z_buffer();
 
 	SDL_RenderPresent(renderer);
 }
 
 void free_resources(void) {
 	free(color_buffer);
+	free(z_buffer);
 	upng_free(png_texture);
 	array_free(mesh.faces);
 	array_free(mesh.vertices);
