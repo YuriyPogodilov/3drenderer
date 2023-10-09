@@ -114,10 +114,10 @@ void process_input(void) {
 			camera.position = vec3_sub(camera.position, camera.forward_velocity);
 			break;
 		case SDLK_a:
-			camera.yaw += 1.0 * delta_time;
+			camera.yaw -= 1.0 * delta_time;
 			break;
 		case SDLK_d:
-			camera.yaw -= 1.0 * delta_time;
+			camera.yaw += 1.0 * delta_time;
 			break;
 		}
 		break;
