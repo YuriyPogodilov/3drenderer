@@ -96,8 +96,28 @@ void process_input(void) {
 		case SDLK_c:
 			cull_method = CULL_BACKFACE;
 			break;
-		case SDLK_d:
+		case SDLK_x:
 			cull_method = CULL_NONE;
+			break;
+		case SDLK_UP:
+			camera.position.y += 3.0 * delta_time;
+			break;
+		case SDLK_DOWN:
+			camera.position.y -= 3.0 * delta_time;
+			break;
+		case SDLK_w:
+			camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time);
+			camera.position = vec3_add(camera.position, camera.forward_velocity);
+			break;
+		case SDLK_s:
+			camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time);
+			camera.position = vec3_sub(camera.position, camera.forward_velocity);
+			break;
+		case SDLK_a:
+			camera.yaw += 1.0 * delta_time;
+			break;
+		case SDLK_d:
+			camera.yaw -= 1.0 * delta_time;
 			break;
 		}
 		break;
@@ -120,20 +140,21 @@ void update(void) {
 
 	num_triangles_to_render = 0;
 
-	mesh.rotation.x += 0.6 * delta_time;
-	mesh.rotation.y += 0.6 * delta_time;
-	mesh.rotation.z += 0.6 * delta_time;
+	//mesh.rotation.x += 0.6 * delta_time;
+	//mesh.rotation.y += 0.6 * delta_time;
+	//mesh.rotation.z += 0.6 * delta_time;
 	mesh.translation.z = 5;
 
+	// Initialize the target looking at the positive z-axis
+	vec3_t target = { 0, 0, 1 };
+	mat4_t camera_yaw_rotation = mat4_make_rotation_y(camera.yaw);
+	camera.direction = vec3_from_vec4(mat4_mul_vec4(camera_yaw_rotation, vec4_from_vec3(target)));
 
-	// Change the camera position per animation frame
-	camera.position.x += 0.5 * delta_time;
-	camera.position.y += 0.8 * delta_time;
+	// Offset the camera position in the direction where is the camera pointing at
+	target = vec3_add(camera.position, camera.direction);
+	vec3_t up_direction = { 0, 1, 0 };
 
-	// Create view matrix looking at hardcoded target point
-	vec3_t target = { 0, 0, 4 };
-	vec3_t up = { 0, 1, 0 };
-	view_matrix = mat4_look_at(camera.position, target, up);
+	view_matrix = mat4_look_at(camera.position, target, up_direction);
 
 	// Create a scale matrix that will be used to multiply the mesh vertices
 	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
