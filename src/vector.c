@@ -2,6 +2,12 @@
 #include "vector.h"
 
 
+vec2_t vec2_new(float x, float y)
+{
+    vec2_t result = { x, y };
+    return result;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // Implementation of Vector 2D functions 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +55,18 @@ void vec2_normalize(vec2_t* v) {
     float length = vec2_length(*v);
     v->x /= length;
     v->y /= length;
+}
+
+vec3_t vec3_new(float x, float y, float z)
+{
+    vec3_t result = { x, y, z };
+    return result;
+}
+
+vec3_t vec3_clone(vec3_t* v)
+{
+    vec3_t result = { v->x, v->y, v->z };
+    return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
