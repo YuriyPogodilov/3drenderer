@@ -7,62 +7,11 @@ static SDL_Texture* color_buffer_texture = NULL;
 
 static uint32_t* color_buffer = NULL;
 static float* z_buffer = NULL;
-static int window_width = 800;
-static int window_height = 600;
+static int window_width = 320;
+static int window_height = 200;
 
 static int render_method = 0;
 static int cull_method = 0;
-
-int get_window_width() {
-	return window_width;
-}
-
-int get_window_height() {
-	return window_height;
-}
-
-int get_render_method()
-{
-	return render_method;
-}
-
-void set_render_method(int method)
-{
-	render_method = method;
-}
-
-bool should_render_filled_triangle(void)
-{
-	return render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE;
-}
-
-bool should_render_textured_triangle(void)
-{
-	return render_method == RENDER_TEXTURED || render_method == RENDER_TEXTURED_WIRE;
-}
-
-bool should_render_wireframe(void)
-{
-	return render_method == RENDER_WIRE ||
-		render_method == RENDER_WIRE_VERTEX ||
-		render_method == RENDER_FILL_TRIANGLE_WIRE ||
-		render_method == RENDER_TEXTURED_WIRE;
-}
-
-bool should_render_wire_vertex(void)
-{
-	return render_method == RENDER_WIRE_VERTEX;
-}
-
-bool is_cull_backface()
-{
-	return cull_method == CULL_BACKFACE;
-}
-
-void set_cull_method(int method)
-{
-	cull_method = method;
-}
 
 bool initialize_window(void) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -73,16 +22,19 @@ bool initialize_window(void) {
 	// Use SDL to query what is fullscreen max. width and height
 	SDL_DisplayMode display_mode;
 	SDL_GetCurrentDisplayMode(0, &display_mode);
-	window_width = display_mode.w;
-	window_height = display_mode.h;
+	int fullscreen_width = display_mode.w;
+	int fullscreen_height = display_mode.h;
+
+	window_width = fullscreen_width / 3;
+	window_height = fullscreen_height / 3;
 
 	// Create a SDL window
 	window = SDL_CreateWindow(
 		NULL,
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		window_width,
-		window_height,
+		fullscreen_width,
+		fullscreen_height,
 		SDL_WINDOW_BORDERLESS
 	);
 	if (!window) {
@@ -163,11 +115,9 @@ void update_zbuffer_at(int x, int y, float value)
 }
 
 void draw_grid(void) {
-	for (int y = 0; y < window_height; y++) {
-		for (int x = 0; x < window_width; x++) {
-			if (x % 10 == 0 || y % 10 == 0 || x % 100 == 1 || x % 100 == 99 || y % 100 == 1 || y % 100 == 99) {
-				color_buffer[window_width * y + x] = 0xFF333333;
-			}
+	for (int y = 0; y < window_height; y += 10) {
+		for (int x = 0; x < window_width; x += 10) {
+			color_buffer[window_width * y + x] = 0xFF44444444;
 		}
 	}
 }
@@ -208,3 +158,53 @@ void draw_rect(int x, int y, int w, int h, uint32_t color) {
 	}
 }
 
+int get_window_width() {
+	return window_width;
+}
+
+int get_window_height() {
+	return window_height;
+}
+
+int get_render_method()
+{
+	return render_method;
+}
+
+void set_render_method(int method)
+{
+	render_method = method;
+}
+
+bool should_render_filled_triangle(void)
+{
+	return render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE;
+}
+
+bool should_render_textured_triangle(void)
+{
+	return render_method == RENDER_TEXTURED || render_method == RENDER_TEXTURED_WIRE;
+}
+
+bool should_render_wireframe(void)
+{
+	return render_method == RENDER_WIRE ||
+		render_method == RENDER_WIRE_VERTEX ||
+		render_method == RENDER_FILL_TRIANGLE_WIRE ||
+		render_method == RENDER_TEXTURED_WIRE;
+}
+
+bool should_render_wire_vertex(void)
+{
+	return render_method == RENDER_WIRE_VERTEX;
+}
+
+bool is_cull_backface()
+{
+	return cull_method == CULL_BACKFACE;
+}
+
+void set_cull_method(int method)
+{
+	cull_method = method;
+}
