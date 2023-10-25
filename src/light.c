@@ -1,12 +1,17 @@
 #include "light.h"
 
-light_t global_light = {
-	.direction = {
-		.x = 0,
-		.y = 0,
-		.z = 1
-	}
+static light_t light = {
+	.direction = { 0, 0, 1 }
 };
+
+void init_light(vec3_t direction) {
+	light.direction = direction;
+}
+
+vec3_t get_light_direction(void)
+{
+	return light.direction;
+}
 
 uint32_t light_apply_intensity(uint32_t original_color, float percentage_factor) {
 	percentage_factor = percentage_factor < 0 ? 0 : percentage_factor;
